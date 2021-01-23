@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Can I post my original Rust arts and crafts on /r/rust right now?</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hack-font/3.3.0/web/hack-subset.min.css"
+        integrity="sha512-+FLbWf7MMvYQNrm4at87w8vmfsEVGmhDDHF77JGoqAtxDv+dYCAniHG+64Ivp+nRzuBYuZhyiXK8BXAN6k00TQ=="
+        crossorigin="anonymous" />
+    <style>
+        body {
+            background-color: #ff8d3a;
+            color: #fff;
+            font-family: Hack, monospace;
+            text-align: center;
+        }
+
+        div {
+            font-size: 2em;
+        }
+
+        @media(min-width: 1000px) {
+            body {
+                width: 50%;
+                margin: 5px auto;
+                border: 2px dashed #fff;
+                padding: 1em;
+                border-radius: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Can I post my original Rust arts and crafts on /r/rust right now?</h1>
+
+    <div id="yesNo"></div>
+    <div id="timeLeft"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-joda/1.11.0/js-joda.min.js"
+        integrity="sha512-piLlO+P2f15QHjUv0DEXBd4HvkL03Orhi30Ur5n1E4Gk2LE4BxiBAP/AD+dxhxpW66DiMY2wZqQWHAuS53RFDg=="
+        crossorigin="anonymous"></script>
+    <script>
+        function remaining(now, next) {
+            let s = i => i == 1 ? '' : 's';
+
+            let days = now.until(next, JSJoda.ChronoUnit.DAYS);
+            if (days > 0) {
+                return { amount: days, unit: 'day' + s(days) };
+            }
+
+            let hours = now.until(next, JSJoda.ChronoUnit.HOURS);
+            if (hours > 0) {
+                return { amount: hours, unit: 'hour' + s(hours) };
+            }
+
+            let minutes = now.until(next, JSJoda.ChronoUnit.MINUTES);
+            if (minutes > 0) {
+                return { amount: minutes, unit: 'minute' + s(minutes) };
+            }
+
+            let seconds = now.until(next, JSJoda.ChronoUnit.SECONDS);
+            if (seconds > 0) {
+                return { amount: seconds, unit: 'second' + s(seconds) };
+            }
+
+            return { amount: 1, unit: 'errors' };
+        }
+
+        function artsAndCraftTime() {
+            let now = JSJoda.ZonedDateTime.now(JSJoda.ZoneOffset.UTC);
+            //let now = JSJoda.ZonedDateTime.parse('2021-01-23T03:58:00+00:00');
+
+            let nextMondayAdjuster = JSJoda.TemporalAdjusters.next(JSJoda.DayOfWeek.MONDAY);
+            let prevSaturdayAdjuster = JSJoda.TemporalAdjusters.previous(JSJoda.DayOfWeek.SATURDAY);
+            let nextSaturdayAdjuster = JSJoda.TemporalAdjusters.nextOrSame(JSJoda.DayOfWeek.SATURDAY);
+
+            let prevSaturday = now.with(prevSaturdayAdjuster).withHour(4).withMinute(0).withSecond(0);
+            let prevMonday = prevSaturday.with(nextMondayAdjuster);
+
+            let nextSaturday = now.with(nextSaturdayAdjuster).withHour(4).withMinute(0).withSecond(0);
+            let nextMonday = nextSaturday.with(nextMondayAdjuster);
+
+            let isPrevWeekend = now.isAfter(prevSaturday) && now.isBefore(prevMonday);
+            let isNextWeekend = now.isAfter(nextSaturday) && now.isBefore(nextMonday);
+
+            let isWeekend = isPrevWeekend || isNextWeekend;
+
+            let rem;
+
+            if (isPrevWeekend) {
+                rem = remaining(now, prevMonday);
+            } else if (isNextWeekend) {
+                rem = remaining(now, nextMonday);
+            } else {
+                rem = remaining(now, nextSaturday);
+            }
+
+            return {
+                is: isWeekend,
+                remaining: rem,
+            };
+        }
+
+        let artsAndCrafts = artsAndCraftTime();
+
+        let yesNo = document.getElementById('yesNo');
+        yesNo.innerText = artsAndCrafts.is ? 'Yes!' : 'No.';
+
+        let timeLeft = document.getElementById('timeLeft');
+        timeLeft.innerText = artsAndCrafts.remaining.amount + ' ' + artsAndCrafts.remaining.unit + ' remaining';
+
+    </script>
+
+</body>
+
+</html>
