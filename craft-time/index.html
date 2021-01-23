@@ -9,7 +9,7 @@
         crossorigin="anonymous" />
     <style>
         body {
-            background-color: #fa6400;
+            background-color: #c75000;
             color: #fff;
             font-family: Hack, monospace;
             text-align: center;
@@ -26,6 +26,22 @@
                 border: 2px dashed #fff;
                 padding: 1em;
                 border-radius: 10px;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #c75000;
+                color: #fff;
+                border-color: #fff;
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            body {
+                background-color: #fff;
+                color: #c75000;
+                border-color: #c75000;
             }
         }
     </style>
